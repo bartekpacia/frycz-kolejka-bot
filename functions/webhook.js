@@ -1,5 +1,4 @@
 const express = require("express")
-
 const webhook = express()
 
 // Adds support for GET requests to our webhook
@@ -7,12 +6,12 @@ webhook.get("/", (req, res) => {
   console.log("Hi there webhook GET")
 
   // Your verify token. Should be a random string.
-  let VERIFY_TOKEN = "tiger123"
+  const VERIFY_TOKEN = process.env.VERIFY_TOKEN
 
   // Parse the query params
-  let mode = req.query["hub.mode"]
-  let token = req.query["hub.verify_token"]
-  let challenge = req.query["hub.challenge"]
+  const mode = req.query["hub.mode"]
+  const token = req.query["hub.verify_token"]
+  const challenge = req.query["hub.challenge"]
 
   // Checks if a token and mode is in the query string of the request
   if (mode && token) {

@@ -1,3 +1,7 @@
+require("dotenv").config()
+
+console.log(process.env.VERIFY_TOKEN)
+
 const functions = require("firebase-functions")
 const bodyParser = require("body-parser")
 const express = require("express")
