@@ -43,15 +43,16 @@ webhook.post("/", (req, res) => {
 
       const message = webhookEvent.message
       const senderPsid = webhookEvent.sender.id
+      const postback = webhookEvent.postback
       console.log(`message: ${message}`)
       console.log(`senderPsid: ${senderPsid}`)
 
       // Check if the event is a message or postback and
       // pass the event to the appropriate handler function
-      if (webhookEvent.message) {
-        handleMessage(senderPsid, webhookEvent.message)
-      } else if (webhookEvent.postback) {
-        handlePostback(senderPsid, webhookevent.postback)
+      if (message) {
+        handleMessage(senderPsid, message)
+      } else if (postback) {
+        handlePostback(senderPsid, postback)
       }
     })
 
@@ -75,7 +76,7 @@ function handleMessage(senderPsid, message) {
   send(senderPsid, response)
 }
 
-function hadnelPostback(senderPsid, postback) {}
+function handlePostback(senderPsid, postback) {}
 
 function send(senderPsid, response) {
   const requestBody = {
