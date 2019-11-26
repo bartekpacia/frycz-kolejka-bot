@@ -1,6 +1,6 @@
 require("dotenv").config()
 
-console.log(process.env.VERIFY_TOKEN)
+console.log(`Token: ${process.env.token}`)
 
 const functions = require("firebase-functions")
 const bodyParser = require("body-parser")
@@ -16,10 +16,5 @@ main.get("/", (req, res) => {
 })
 
 main.use("/webhook", webhook)
-
-// http://localhost:5000/frycz-kolejka-bot/us-central1/bot
-// https://firebase.google.com/docs/functions/write-firebase-functions
-// curl -X GET "http://localhost:5000/frycz-kolejka-bot/us-central1/bot/webhook?hub.verify_token=tiger123&hub.challenge=CHALLENGE_ACCEPTED&hub.mode=subscribe"
-// curl -H "Content-Type: application/json" -X POST "http://localhost:5000/frycz-kolejka-bot/us-central1/bot/webhook" -d '{"object": "page", "entry": [{"messaging": [{"message": "TEST_MESSAGE"}]}]}'
 
 exports.bot = functions.https.onRequest(main)

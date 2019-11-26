@@ -3,10 +3,9 @@ const webhook = express()
 
 // Adds support for GET requests to our webhook
 webhook.get("/", (req, res) => {
-  console.log("Hi there webhook GET")
+  console.log("GET /webhook")
 
-  // Your verify token. Should be a random string.
-  const VERIFY_TOKEN = process.env.VERIFY_TOKEN
+  const VERIFY_TOKEN = process.env.token
 
   // Parse the query params
   const mode = req.query["hub.mode"]
@@ -29,7 +28,7 @@ webhook.get("/", (req, res) => {
 })
 
 webhook.post("/", (req, res) => {
-  console.log("Hi there webhook GET")
+  console.log("POST /webhook")
 
   let body = req.body
 
@@ -49,8 +48,5 @@ webhook.post("/", (req, res) => {
     res.status(400).send("Bad Request: Event is not from a page subscription")
   }
 })
-
-// // Sets server port and logs message on success
-// app.listen(process.env.PORT || 1337, () => console.log("webhook is listening"))
 
 exports.webhook = webhook
