@@ -1,4 +1,5 @@
 const express = require("express")
+const request = require("request")
 const webhook = express()
 
 // Adds support for GET requests to our webhook
@@ -38,15 +39,68 @@ webhook.post("/", (req, res) => {
     body.entry.forEach(entry => {
       // Gets the message. entry.messaging is an array, but
       // will only ever contain one message, so we get index 0
-      let webhookEvent = entry.messaging[0].message
-      console.log(webhookEvent)
+      const webhookEvent = entry.messaging[0]
+
+      const message = webhookEvent.message
+      const senderPsid = webhookEvent.sender.id
+      console.log(`message: ${message}`)
+      console.log(`senderPsid: ${senderPsid}`)
+
+      // Check if the event is a message or postback and
+      // pass the event to the appropriate handler function
+      if (webhookEvent.message) {
+        handleMessage(senderPsid, webhookEvent.message)
+      } else if (webhookEvent.postback) {
+        handlePostback(senderPsid, webhookevent.postback)
+      }
     })
 
-    // Returns a '200 OK' response to all requests
     res.status(200).send("EVENT_RECEIVED")
   } else {
     res.status(400).send("Bad Request: Event is not from a page subscription")
   }
 })
+
+function handleMessage(senderPsid, message) {
+  let response
+
+  // Check if the message contains text
+  if (message.text) {
+    // Create the payload for a basic text message
+    response = {
+      text: `Twoja wiadomość: ${message.text}. Twoja buła jest już w drodze!`
+    }
+  }
+
+  send(senderPsid, response)
+}
+
+function hadnelPostback(senderPsid, postback) {}
+
+function send(senderPsid, response) {
+  const requestBody = {
+    recipient: {
+      id: senderPsid
+    },
+    message: response
+  }
+
+  // Send the HTTP request to the Messenger Platform
+  request(
+    {
+      uri: "https://graph.facebook.com/v2.6/me/messages",
+      qs: { access_token: process.env.token },
+      method: "POST",
+      json: requestBody
+    },
+    (err, res, body) => {
+      if (!err) {
+        console.log("message sent!")
+      } else {
+        console.error("Unable to send message:" + err)
+      }
+    }
+  )
+}
 
 exports.webhook = webhook
