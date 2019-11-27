@@ -6,7 +6,7 @@ const webhook = express()
 webhook.get("/", (req, res) => {
   console.log("GET /webhook")
 
-  const VERIFY_TOKEN = process.env.token
+  const VERIFY_TOKEN = process.env.verify_token
 
   // Parse the query params
   const mode = req.query["hub.mode"]
@@ -45,7 +45,7 @@ webhook.post("/", async (req, res) => {
       const senderPsid = webhookEvent.sender.id
       const postback = webhookEvent.postback
       console.log(message)
-      console.log(`message: ${message}`)
+      console.log(`message text: ${message.text}`)
       console.log(`senderPsid: ${senderPsid}`)
 
       // Check if the event is a message or postback and
@@ -99,7 +99,7 @@ async function send(senderPsid, response) {
   await request(
     {
       uri: "https://graph.facebook.com/v2.6/me/messages",
-      qs: { access_token: process.env.token },
+      qs: { access_token: process.env.access_token },
       method: "POST",
       json: requestBody
     },

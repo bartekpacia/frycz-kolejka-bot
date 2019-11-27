@@ -1,6 +1,7 @@
 require("dotenv").config()
 
-console.log(`Token: ${process.env.token}`)
+console.log(`Verify token: ${process.env.verify_token}`)
+console.log(`Access token: ${process.env.access_token}`)
 
 const functions = require("firebase-functions")
 const bodyParser = require("body-parser")
