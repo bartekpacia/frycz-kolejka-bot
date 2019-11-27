@@ -1,5 +1,5 @@
 const express = require("express")
-const request = require("request")
+const request = require("request-promise-native")
 const webhook = express()
 
 // Adds support for GET requests to our webhook
@@ -28,7 +28,7 @@ webhook.get("/", (req, res) => {
   } else res.status(400).send("Bad Request")
 })
 
-webhook.post("/", (req, res) => {
+webhook.post("/", async (req, res) => {
   console.log("POST /webhook")
 
   let body = req.body
@@ -44,15 +44,16 @@ webhook.post("/", (req, res) => {
       const message = webhookEvent.message
       const senderPsid = webhookEvent.sender.id
       const postback = webhookEvent.postback
+      console.log(message)
       console.log(`message: ${message}`)
       console.log(`senderPsid: ${senderPsid}`)
 
       // Check if the event is a message or postback and
       // pass the event to the appropriate handler function
       if (message) {
-        handleMessage(senderPsid, message)
+        await handleMessage(senderPsid, message)
       } else if (postback) {
-        handlePostback(senderPsid, postback)
+        await handlePostback(senderPsid, postback)
       }
     })
 
@@ -62,7 +63,7 @@ webhook.post("/", (req, res) => {
   }
 })
 
-function handleMessage(senderPsid, message) {
+async function handleMessage(senderPsid, message) {
   let response
 
   // Check if the message contains text
@@ -73,12 +74,12 @@ function handleMessage(senderPsid, message) {
     }
   }
 
-  send(senderPsid, response)
+  await send(senderPsid, response)
 }
 
-function handlePostback(senderPsid, postback) {}
+async function handlePostback(senderPsid, postback) {}
 
-function send(senderPsid, response) {
+async function send(senderPsid, response) {
   const requestBody = {
     recipient: {
       id: senderPsid
@@ -87,7 +88,7 @@ function send(senderPsid, response) {
   }
 
   // Send the HTTP request to the Messenger Platform
-  request(
+  await request(
     {
       uri: "https://graph.facebook.com/v2.6/me/messages",
       qs: { access_token: process.env.token },
