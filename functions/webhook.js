@@ -51,13 +51,21 @@ webhook.post("/", async (req, res) => {
       // Check if the event is a message or postback and
       // pass the event to the appropriate handler function
       if (message) {
-        await handleMessage(senderPsid, message)
+        handleMessage(senderPsid, message)
+          .then(() => res.status(200).send("EVENT_RECEIVED"))
+          .catch(reason => {
+            res.status(500).send("Idk what happened")
+            console.error("handleMessage catch()")
+          })
       } else if (postback) {
-        await handlePostback(senderPsid, postback)
+        handlePostback(senderPsid, postback)
+          .then(() => res.status(200).send("EVENT_RECEIVED"))
+          .catch(reason => {
+            res.status(500).send("Idk what happened")
+            console.error("handlePostback catch()")
+          })
       }
     })
-
-    res.status(200).send("EVENT_RECEIVED")
   } else {
     res.status(400).send("Bad Request: Event is not from a page subscription")
   }
