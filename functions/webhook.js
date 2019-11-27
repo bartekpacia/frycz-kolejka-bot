@@ -80,12 +80,56 @@ async function handleMessage(senderPsid, message) {
     response = {
       text: `Twoja wiadomość: ${message.text}. Twoja buła jest już w drodze!`
     }
+  } else if (message.attachments) {
+    let attachmentUrl = message.attachments[0].payload.url
+
+    response = {
+      attachment: {
+        type: "template",
+        payload: {
+          template_type: "generic",
+          elements: [
+            {
+              title: "Is this the right picture?",
+              subtitle: "Tap a button to answer.",
+              image_url: attachmentUrl,
+              buttons: [
+                {
+                  type: "postback",
+                  title: "Yes!",
+                  payload: "yes"
+                },
+                {
+                  type: "postback",
+                  title: "No!",
+                  payload: "no"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
   }
 
   await send(senderPsid, response)
 }
 
-async function handlePostback(senderPsid, postback) {}
+async function handlePostback(senderPsid, postback) {
+  let response
+
+  // Get the payload for the postback
+  let payload = postback.payload
+
+  // Set the response based on the postback payload
+  if (payload === "yes") {
+    response = { text: "Thanks!" }
+  } else if (payload === "no") {
+    response = { text: "Oops, try sending another image." }
+  }
+  // Send the message to acknowledge the postback
+  await send(senderPsid, response)
+}
 
 async function send(senderPsid, response) {
   const requestBody = {
