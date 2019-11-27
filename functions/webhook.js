@@ -44,13 +44,14 @@ webhook.post("/", async (req, res) => {
       const message = webhookEvent.message
       const senderPsid = webhookEvent.sender.id
       const postback = webhookEvent.postback
-      console.log(message)
-      console.log(`message text: ${message.text}`)
+
       console.log(`senderPsid: ${senderPsid}`)
 
       // Check if the event is a message or postback and
       // pass the event to the appropriate handler function
       if (message) {
+        console.log(`message text: ${message.text}`)
+
         handleMessage(senderPsid, message)
           .then(() => res.status(200).send("EVENT_RECEIVED"))
           .catch(reason => {
