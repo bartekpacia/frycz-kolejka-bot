@@ -95,10 +95,10 @@
     "handle-callback-err": 2,
 
     // Warn against string concatenation with __dirname and __filename
-    "no-path-concat": 1
+    "no-path-concat": 1,
 
     // Prefer using arrow functions for callbacks
-    // "prefer-arrow-callback": 1,
+    "prefer-arrow-callback": 1
 
     // Return inside each then() to create readable and reusable Promise chains.
     // Forces developers to return console logs and http calls in promises.
