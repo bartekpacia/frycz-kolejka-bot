@@ -1,3 +1,5 @@
 node_modules/
 .env
 firebase-debug.log
+.idea
+.vscode
