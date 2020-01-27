@@ -1,8 +1,11 @@
+const admin = require("firebase-admin")
 const express = require("express")
 const request = require("request-promise-native")
 const webhook = express()
 
-// Adds support for GET requests to our webhook
+const firestore = admin.firestore()
+
+// Adds support for GET requests to our webhook - only needed for verification
 webhook.get("/", (req, res) => {
   console.log("GET /webhook")
 
@@ -28,6 +31,7 @@ webhook.get("/", (req, res) => {
   } else res.status(400).send("Bad Request")
 })
 
+// Handle actual messages from users
 webhook.post("/", async (req, res) => {
   console.log("POST /webhook")
 
@@ -56,14 +60,14 @@ webhook.post("/", async (req, res) => {
           .then(() => res.status(200).send("EVENT_RECEIVED"))
           .catch(reason => {
             res.status(500).send("Idk what happened")
-            console.error("handleMessage catch()")
+            console.error("handleMessage catch()", reason)
           })
       } else if (postback) {
         handlePostback(senderPsid, postback)
           .then(() => res.status(200).send("EVENT_RECEIVED"))
           .catch(reason => {
             res.status(500).send("Idk what happened")
-            console.error("handlePostback catch()")
+            console.error("handlePostback catch()", reason)
           })
       }
     })
@@ -79,8 +83,26 @@ async function handleMessage(senderPsid, message) {
   if (message.text) {
     // Create the payload for a basic text message
     response = {
-      text: `Twoja wiadomość: ${message.text}. Twoja buła jest już w drodze!`
+      text: `Twoja zamówienie: ${message.text}. Zapisano w bazie oczekujących. Cierpliwości ;)`
     }
+
+    const userResponse = await request(
+      `https://graph.facebook.com/${senderPsid}?fields=first_name,last_name,profile_pic&access_token=${process.env.access_token}`
+    )
+
+    const user = JSON.parse(userResponse)
+
+    const username = `${user.first_name} ${user.last_name}`
+    console.log(`username: ${username}`)
+
+    await firestore
+      .collection("orders")
+      .doc()
+      .create({
+        orderer: username,
+        order: message.text,
+        timestamp: new Date().getTime()
+      })
   } else if (message.attachments) {
     let attachmentUrl = message.attachments[0].payload.url
 

@@ -3,6 +3,9 @@ require("dotenv").config()
 console.log(`Verify token: ${process.env.verify_token}`)
 console.log(`Access token: ${process.env.access_token}`)
 
+const admin = require("firebase-admin")
+admin.initializeApp()
+
 const functions = require("firebase-functions")
 const bodyParser = require("body-parser")
 const express = require("express")
