@@ -19,12 +19,6 @@ main.get("/", (req, res) => {
   res.status(200).send("Main entry point hit!")
 })
 
-main.use(
-  "/webhook",
-  (req, res) => {
-    console.log("Webhook hit!")
-  },
-  webhook
-)
+main.use("/webhook", webhook)
 
 exports.bot = functions.https.onRequest(main)
