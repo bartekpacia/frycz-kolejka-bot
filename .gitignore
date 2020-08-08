@@ -3,3 +3,5 @@ node_modules/
 firebase-debug.log
 .idea
 .vscode
+key.json
+.DS_Store

@@ -16,6 +16,9 @@ webhook.get("/", (req, res) => {
   const token = req.query["hub.verify_token"]
   const challenge = req.query["hub.challenge"]
 
+  console.log(mode, token, challenge)
+  console.log(VERIFY_TOKEN)
+
   // Checks if a token and mode is in the query string of the request
   if (mode && token) {
     // Checks the mode and token sent is correct
@@ -35,12 +38,10 @@ webhook.get("/", (req, res) => {
 webhook.post("/", async (req, res) => {
   console.log("POST /webhook")
 
-  let body = req.body
-
   // Checks if this is an event from a page subscription
-  if (body.object === "page") {
+  if (req.body.object === "page") {
     // Iterates over each entry - there may be multiple if batched
-    body.entry.forEach(entry => {
+    req.body.entry.forEach((entry) => {
       // Gets the message. entry.messaging is an array, but
       // will only ever contain one message, so we get index 0
       const webhookEvent = entry.messaging[0]
@@ -58,14 +59,14 @@ webhook.post("/", async (req, res) => {
 
         handleMessage(senderPsid, message)
           .then(() => res.status(200).send("EVENT_RECEIVED"))
-          .catch(reason => {
+          .catch((reason) => {
             res.status(500).send("Idk what happened")
             console.error("handleMessage catch()", reason)
           })
       } else if (postback) {
         handlePostback(senderPsid, postback)
           .then(() => res.status(200).send("EVENT_RECEIVED"))
-          .catch(reason => {
+          .catch((reason) => {
             res.status(500).send("Idk what happened")
             console.error("handlePostback catch()", reason)
           })
@@ -83,7 +84,7 @@ async function handleMessage(senderPsid, message) {
   if (message.text) {
     // Create the payload for a basic text message
     response = {
-      text: `Twoja zamówienie: ${message.text}. Zapisano w bazie oczekujących. Cierpliwości ;)`
+      text: `Twoja zamówienie: ${message.text}. Zapisano w bazie oczekujących. Cierpliwości ;)`,
     }
 
     const userResponse = await request(
@@ -95,14 +96,11 @@ async function handleMessage(senderPsid, message) {
     const username = `${user.first_name} ${user.last_name}`
     console.log(`username: ${username}`)
 
-    await firestore
-      .collection("orders")
-      .doc()
-      .create({
-        orderer: username,
-        order: message.text,
-        timestamp: new Date().getTime()
-      })
+    await firestore.collection("orders").doc().create({
+      orderer: username,
+      order: message.text,
+      timestamp: new Date().getTime(),
+    })
   } else if (message.attachments) {
     let attachmentUrl = message.attachments[0].payload.url
 
@@ -120,18 +118,18 @@ async function handleMessage(senderPsid, message) {
                 {
                   type: "postback",
                   title: "Yes!",
-                  payload: "yes"
+                  payload: "yes",
                 },
                 {
                   type: "postback",
                   title: "No!",
-                  payload: "no"
-                }
-              ]
-            }
-          ]
-        }
-      }
+                  payload: "no",
+                },
+              ],
+            },
+          ],
+        },
+      },
     }
   }
 
@@ -157,9 +155,9 @@ async function handlePostback(senderPsid, postback) {
 async function send(senderPsid, response) {
   const requestBody = {
     recipient: {
-      id: senderPsid
+      id: senderPsid,
     },
-    message: response
+    message: response,
   }
 
   // Send the HTTP request to the Messenger Platform
@@ -168,7 +166,7 @@ async function send(senderPsid, response) {
       uri: "https://graph.facebook.com/v2.6/me/messages",
       qs: { access_token: process.env.access_token },
       method: "POST",
-      json: requestBody
+      json: requestBody,
     },
     (err, res, body) => {
       if (!err) {

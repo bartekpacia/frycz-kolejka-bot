@@ -4,7 +4,11 @@ console.log(`Verify token: ${process.env.verify_token}`)
 console.log(`Access token: ${process.env.access_token}`)
 
 const admin = require("firebase-admin")
-admin.initializeApp()
+
+const key = require("./key.json")
+admin.initializeApp({
+  credential: admin.credential.cert(key),
+})
 
 const functions = require("firebase-functions")
 const bodyParser = require("body-parser")
@@ -21,4 +25,7 @@ main.get("/", (req, res) => {
 
 main.use("/webhook", webhook)
 
-exports.bot = functions.https.onRequest(main)
+const port = 5000
+main.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`)
+})
